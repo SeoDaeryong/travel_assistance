@@ -1,0 +1,47 @@
+{% for place in places %}
+    <script>
+    function place_ajax_capital_update(mode, pk, update) {
+      $.ajax({
+          type: "POST",
+          url: "ajax/" + mode,
+          async : false,
+          content_type: 'application/json; charset=utf-8',
+          data : {pk: pk, update: update},
+          dataType: "text",
+          success: function(result) {
+            //alert(result);
+            $("#list").html(result);
+          },
+          error: function(data) {
+            //alert("나중");
+            return false;
+          }
+      });
+    }
+    </script>
+    <div class="row">
+        <div class="col-sm-6">
+            <h1 class="form-control"><a href="{% url 'place_detail' pk=place.pk %}"> {{ place.place_name }} </a></h1>
+        </div>
+        <div class="col-sm-2">
+          <h2 class="form-control">{{ place.group_name }}</h>
+        </div>
+        <div class="col-sm-2">
+          <input name="capital"
+          {% if place.capital == True %}
+          checked="checked" onclick="place_ajax_capital_update('capital', {{place.id}}, 'off');"
+          {% else %}
+          onclick="place_ajax_capital_update('capital', {{place.id}}, 'on');"
+          {% endif %}
+          type="checkbox" style="text-align:center" />
+          그룹 중심
+        </div>
+        <div class="col-sm-2">
+          <input class="form-control btn btn-default" type="button" value="삭제" onclick="place_ajax_delete('delete', {{ place.pk }}, 'no');"/>
+        </div>
+        <!--<h1><a href="">{{ place.title }}</a></h1>-->
+        <div class="col-sm-12">
+          <p>{{ place.info|linebreaksbr }}</p>
+        </div>
+    </div>
+{% endfor %}

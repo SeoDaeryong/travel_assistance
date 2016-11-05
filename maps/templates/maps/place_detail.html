@@ -1,0 +1,45 @@
+{% extends 'maps/index.html' %}
+
+{% block content %}
+    <div class="place row">
+        <form method="POST" class="post-form"> {% csrf_token %}
+        <div class="col-xs-3">
+          <label name="place_name" class="form-control">{{ place.place_name }}</label>
+        </div>
+        <div class="col-xs-3" >
+            <input name="group_name" class="form-control" type="text" style="text-align:center;" value="{{ place.group_name }}"/>
+        </div>
+        <div class="col-xs-3">
+          {% if place.capital == True %}
+          <input name="capital" type="checkbox" checked="checked" style="text-align:center"/>
+          {% else %}
+          <input name="capital" type="checkbox" style="text-align:center"/>
+          {% endif %}
+          그룹 중심 여부
+        </div>
+        <div class="col-xs-3">
+          <button type="submit" style="text-align:center" class="save btn btn-default">Save</button>
+        </div>
+        <div class="col-sm-12">
+          <textarea name="info" class="form-control" rows="3">{{ place.info|linebreaksbr }}</textarea><br>
+        </div>
+        <input name="id" type="hidden" value="{{place.id}}" />
+        </form>
+    </div>
+    <div class="row">
+      {% for capital in capitals %}
+      <div class="col-sm-12">
+          <div class="col-sm-2">
+            <h1 class="form-control"><a href="{% url 'place_detail' pk=capital.id %}"> {{ capital.place_name }} </a></h1>
+          </div>
+          <div class="col-sm-2">
+            <h2 class="form-control">{{ capital.group_name }}</h>
+          </div>
+          <div class="col-sm-4">
+            <h2 class="form-control">{{ capital.time }}</h>
+          </div>
+          <!--<h1><a href="">{{ place.title }}</a></h1>-->
+      </div>
+      {% endfor %}
+    </div>
+{% endblock %}
