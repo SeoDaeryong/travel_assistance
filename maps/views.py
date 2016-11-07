@@ -9,8 +9,9 @@ from .models import Place
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import get_template
 from django.template import Context
-import json, urllib
+import json, urllib, urllib2
 from datetime import datetime, timedelta
+import requests
 
 # Create your views here.
 def index(request):
@@ -49,7 +50,12 @@ def ajax_add(request):
 
 def calc_time_logic(orig_coord, dest_coord):
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + orig_coord + "&destinations=" + dest_coord + "&mode=trasit&language=ko-KR&key=AIzaSyAIqZxhPY5au_XncU-ZM5hpD8Ty_UkAoWg"
-    result= json.load(urllib.urlopen(url))
+    r = requests.post(url)
+    print r
+    #print url
+    #print urllib.urlopen(url).read()
+    #result= json.load(urllib.urlopen(url))
+    result = r.json()
     transit_time = result['rows'][0]['elements'][0]['duration']['value']
     return transit_time
 
