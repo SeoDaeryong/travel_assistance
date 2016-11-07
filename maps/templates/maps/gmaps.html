@@ -200,9 +200,9 @@ function initAutocomplete() {
     setMarkers(map);
   });
 
-  var beaches = []
+  var makrers = []
   {% for markerT in markerTs %}
-    beaches.push(["{{markerT.name}}", {{markerT.lat}}, {{markerT.lng}}])
+    makrers.push(["{{markerT.name}}", {{markerT.lat}}, {{markerT.lng}}])
   {% endfor %}
   function setMarkers(map) {
     // Adds markers to the map.
@@ -220,13 +220,13 @@ function initAutocomplete() {
       type: 'poly'
     };
 
-    for (var i = 0; i < beaches.length; i++) {
-      var beach = beaches[i];
+    for (var i = 0; i < makrers.length; i++) {
+      var place = makrers[i];
       var marker = new google.maps.Marker({
-        position: {lat: beach[1], lng: beach[2]},
+        position: {lat: place[1], lng: place[2]},
         map: map,
         shape: shape,
-        title: beach[0],
+        title: place[0],
       });
     }
   }

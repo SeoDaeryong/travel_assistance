@@ -12,6 +12,7 @@ from django.template import Context
 import json, urllib, urllib2
 from datetime import datetime, timedelta
 import requests
+import operator
 
 # Create your views here.
 def index(request):
@@ -44,14 +45,26 @@ def ajax_add(request):
                     break
             new_place.save()
 
+    group_count, places = group_count_update()
     pls = get_template('maps/place_list.html')
-    ctx = Context({ 'places': Place.objects.all() })
+    ctx = Context({ 'groups' : group_count, 'places': places })
+    return HttpResponse(pls.render(ctx))
+
+@csrf_exempt
+def ajax_group(request):
+    if request.method == "POST" and request.is_ajax():
+        print 'Raw Data: "%s"' % request.POST
+        group_name = request.POST.get("group_name", "")
+
+    group_count, places = group_count_update(group_name)
+    pls = get_template('maps/place_list.html')
+    ctx = Context({ 'groups' : group_count, 'places': places })
     return HttpResponse(pls.render(ctx))
 
 def calc_time_logic(orig_coord, dest_coord):
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + orig_coord + "&destinations=" + dest_coord + "&mode=trasit&language=ko-KR&key=AIzaSyAIqZxhPY5au_XncU-ZM5hpD8Ty_UkAoWg"
     r = requests.post(url)
-    print r
+    #print r
     #print url
     #print urllib.urlopen(url).read()
     #result= json.load(urllib.urlopen(url))
@@ -95,10 +108,13 @@ def ajax_delete(request):
 
             candPlace.update(capital=True)
         deletePlace.delete()
-        #form.delete()
 
+        #form.delete()
+    group_count, places = group_count_update()
+    print group_count
+    print places
     pls = get_template('maps/place_list.html')
-    ctx = Context({ 'places': Place.objects.all() })
+    ctx = Context({ 'groups' : group_count, 'places': places })
     return HttpResponse(pls.render(ctx))
 
 @csrf_exempt
@@ -112,7 +128,7 @@ def ajax_capital(request):
         #form.delete()
 
     pls = get_template('maps/place_list.html')
-    ctx = Context({ 'places': Place.objects.all() })
+    ctx = Context({ 'groups' : group_count, 'places': Place.objects.all() })
     return HttpResponse(pls.render(ctx))
 
 def place_detail(request, pk):
@@ -142,6 +158,21 @@ def place_detail(request, pk):
             capitals.append({"id": cplace.id, "group_name": cplace.group_name, "place_name": cplace.place_name, "time": GetTime(transit_time)})
         return render(request, 'maps/place_detail.html', {'place': place, 'capitals': capitals})
 
+def group_count_update(group_name=""):
+    capital_places = Place.objects.filter(capital=True)
+    group = {}
+    for cplace in capital_places:
+        group[cplace.group_name] = Place.objects.filter(group_name=cplace.group_name).count()
+        #group_count.append({"group_name": cplace.group_name, "group_count": Place.objects.filter(group_name=cplace.group_name).count()})
+
+    group_count = sorted(group.items(), key=operator.itemgetter(1), reverse=True)
+    if group_name == "":
+        places = Place.objects.filter(group_name=group_count[0][0])
+    else:
+        places = Place.objects.filter(group_name=group_name)
+    return group_count, places
+
 def all_place_list_return(request):
     places = Place.objects.all()
-    return render(request, 'maps/index.html', {'places': places})
+    group_count, places = group_count_update()
+    return render(request, 'maps/index.html', {'groups' : group_count, 'places': places})
