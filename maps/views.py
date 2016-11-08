@@ -13,6 +13,7 @@ import json, urllib, urllib2
 from datetime import datetime, timedelta
 import requests
 import operator
+from django.core import serializers
 
 # Create your views here.
 def index(request):
@@ -31,19 +32,21 @@ def ajax_add(request):
     if request.method == "POST" and request.is_ajax():
         print 'Raw Data: "%s"' % request.body
         form = PlaceForm(request.POST)
-        if form.is_valid():
-            new_place = form.save(commit=False)
-            new_place.capital = True
-            capital_places = Place.objects.filter(capital=True)
-            for place in capital_places:
-                dest_coord = str(place.lat) + "," + str(place.lng)
-                orig_coord = request.POST.get("lat", "") + "," + request.POST.get("lng", "")
-                transit_time = calc_time_logic(orig_coord, dest_coord)
-                if transit_time < 3600:
-                    new_place.group_name = place.group_name
-                    new_place.capital = False
-                    break
-            new_place.save()
+        print Place.objects.filter(place_id=request.POST.get("place_id", "")).count()
+        if Place.objects.filter(place_id=request.POST.get("place_id", "")).count() != 1:
+            if form.is_valid():
+                new_place = form.save(commit=False)
+                new_place.capital = True
+                capital_places = Place.objects.filter(capital=True)
+                for place in capital_places:
+                    dest_coord = str(place.lat) + "," + str(place.lng)
+                    orig_coord = request.POST.get("lat", "") + "," + request.POST.get("lng", "")
+                    transit_time = calc_time_logic(orig_coord, dest_coord)
+                    if transit_time < 3600:
+                        new_place.group_name = place.group_name
+                        new_place.capital = False
+                        break
+                new_place.save()
 
     group_count, places = group_count_update()
     pls = get_template('maps/place_list.html')
@@ -59,7 +62,9 @@ def ajax_group(request):
     group_count, places = group_count_update(group_name)
     pls = get_template('maps/place_list.html')
     ctx = Context({ 'groups' : group_count, 'places': places })
-    return HttpResponse(pls.render(ctx))
+    data = [[p.place_name, p.lat, p.lng] for p in places]
+    #return HttpResponse(pls.render(ctx), {'places': places})
+    return HttpResponse(json.dumps({"html": pls.render(ctx), "places": data}))
 
 def calc_time_logic(orig_coord, dest_coord):
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + orig_coord + "&destinations=" + dest_coord + "&mode=trasit&language=ko-KR&key=AIzaSyAIqZxhPY5au_XncU-ZM5hpD8Ty_UkAoWg"
@@ -111,8 +116,6 @@ def ajax_delete(request):
 
         #form.delete()
     group_count, places = group_count_update()
-    print group_count
-    print places
     pls = get_template('maps/place_list.html')
     ctx = Context({ 'groups' : group_count, 'places': places })
     return HttpResponse(pls.render(ctx))
@@ -123,12 +126,17 @@ def ajax_capital(request):
         print 'Raw Delete Data: "%s"' % request.POST.get("update", "")
         update = request.POST.get("update", "")
         pk = request.POST.get("pk", "")
+        #print pk
         update = capital_update_check(update)
+        pkp = Place.objects.filter(pk=pk)
+        pcp = Place.objects.filter(group_name=get_object_or_404(Place, pk=pk).group_name).filter(capital=True).update(capital=False)
+        #print pkp
         Place.objects.filter(pk=pk).update(capital=update)
         #form.delete()
 
+    group_count, places = group_count_update()
     pls = get_template('maps/place_list.html')
-    ctx = Context({ 'groups' : group_count, 'places': Place.objects.all() })
+    ctx = Context({ 'groups' : group_count, 'places': places })
     return HttpResponse(pls.render(ctx))
 
 def place_detail(request, pk):
@@ -136,11 +144,13 @@ def place_detail(request, pk):
         id = request.POST.get("id", "")
         group_name = request.POST.get("group_name", "")
         capital = request.POST.get("capital", "")
+        info = request.POST.get("info", "")
         print 'Raw Delete Data: "%s"' % capital
         capital = capital_update_check(capital)
         #print 'Raw Delete Data: "%s"' % pk.pk
         Place.objects.filter(pk=id).update(group_name=group_name)
         Place.objects.filter(pk=id).update(capital=capital)
+        Place.objects.filter(pk=id).update(info=info)
         #print form
             #form.save()
         return redirect("index")
@@ -167,9 +177,9 @@ def group_count_update(group_name=""):
 
     group_count = sorted(group.items(), key=operator.itemgetter(1), reverse=True)
     if group_name == "":
-        places = Place.objects.filter(group_name=group_count[0][0])
+        places = Place.objects.filter(group_name=group_count[0][0]).order_by('-capital')
     else:
-        places = Place.objects.filter(group_name=group_name)
+        places = Place.objects.filter(group_name=group_name).order_by('-capital')
     return group_count, places
 
 def all_place_list_return(request):

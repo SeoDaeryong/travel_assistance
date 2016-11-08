@@ -7,6 +7,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
     <!-- <link rel="stylesheet" href="{% static 'css/blog.css' %}"> -->
     <style>
       html, body {
@@ -17,6 +18,15 @@
       #map {
         height: 100%;
       }
+.group-style {
+  margin-top: 5px;
+  border: 1px solid; transparent;
+  border-radius: 2px 2px 2px 2px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  height: 32px;
+  outline: 1px;
+}
 .controls {
   margin-top: 10px;
   border: 1px solid transparent;
@@ -60,7 +70,7 @@
 }
 
     </style>
-    <title>Places Searchbox</title>
+    <title>TRAVEL ASSISTANCE</title>
     <style>
       #target {
         width: 345px;
@@ -73,6 +83,7 @@
     <br>
     <div class="row">
       <div class="col-sm-4">
+        <h1 style="color: #FCA205; font-family: 'Lobster';"> <a href='/'>TRAVEL ASSISTANCE </a></h1>
       </div>
       <div class="col-sm-2">
         <input type="button" class="btn btn-default" onclick="$('#map').show()" value="지도 ON"></input>
@@ -122,9 +133,18 @@
           content_type: 'application/json; charset=utf-8',
           data : {group_name: group_name},
           dataType: "text",
-          success: function(result) {
-            //alert(result);
-            $("#list").html(result);
+          success: function(result, textStatus, jqXHR) {
+            var obj = JSON.parse(result);
+            //alert(obj.html);
+            $("#list").html(obj.html);
+            locations = [];
+            //alert(obj.places.length);
+            for(i = 0; i < obj.places.length; i++) {
+              locations.push(obj.places[i]);
+            }
+            clearMarkers();
+            set_marker("on", map);
+            showMarkers()
           },
           error: function(data) {
             //alert("나중");
@@ -188,6 +208,8 @@ function set_marker(mode, map) {
     type: 'poly'
   };
 
+  markers = [];
+  //alert(locations.length);
   for (var i = 0; i < locations.length; i++) {
     var place = locations[i];
     var marker = new google.maps.Marker({
@@ -197,6 +219,7 @@ function set_marker(mode, map) {
       title: place[0],
     });
     markers.push(marker);
+    map.setCenter({lat: locations[0][1], lng: locations[0][2]});
   }
 }
 
