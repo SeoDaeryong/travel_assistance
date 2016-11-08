@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
     <link href="https://fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-    <!-- <link rel="stylesheet" href="{% static 'css/blog.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/maps.css' %}">
     <style>
       html, body {
         height: 100%;
@@ -85,17 +85,23 @@
       <div class="col-sm-4">
         <h1 style="color: #FCA205; font-family: 'Lobster';"> <a href='/'>TRAVEL ASSISTANCE </a></h1>
       </div>
-      <div class="col-sm-2">
+      <div class="col-sm-3">
+        <input type="button" class="btn btn-primary btn-lg active" onclick="find_load()" value="길찾기"></input>
+      </div>
+      <div class="col-sm-1">
         <input type="button" class="btn btn-default" onclick="$('#map').show()" value="지도 ON"></input>
       </div>
-      <div class="col-sm-2">
+      <div class="col-sm-1">
         <input type="button" class="btn btn-default" onclick="$('#map').hide()" value="지도 OFF"></input>
       </div>
-      <div class="col-sm-2">
+      <div class="col-sm-1">
         <input type="button" class="btn btn-default" onclick="showMarkers()" value="마커 ON"></input>
       </div>
-      <div class="col-sm-2">
+      <div class="col-sm-1">
         <input type="button" class="btn btn-default" onclick="clearMarkers()" value="마커 OFF"></input>
+      </div>
+      <div class="col-sm-1">
+
       </div>
     </div>
     <br>
@@ -152,6 +158,19 @@
           }
       });
     }
+    function find_load() {
+      var gc = $("input[name=gc]:checkbox:checked");
+      if (gc.length != 2) {
+          return 1;
+      }
+
+      var dest = ""
+      for(i=0; i < 2; i++) {
+        dest += gc[i].value + "/"
+      }
+
+      window.open("https://www.google.co.kr/maps/dir/" + dest);
+    }
     </script>
     <script>
 // This example adds a search box to a map, using the Google Place Autocomplete
@@ -199,7 +218,7 @@ var map;
 var markers = [];
 var locations = [];
 {% for place in places %}
-locations.push(["{{place.name}}", {{place.lat}}, {{place.lng}}])
+locations.push(["{{place.place_name}}", {{place.lat}}, {{place.lng}}, "{{place.info}}"])
 {% endfor %}
 
 function set_marker(mode, map) {
@@ -208,19 +227,29 @@ function set_marker(mode, map) {
     type: 'poly'
   };
 
+  var infowindow = new google.maps.InfoWindow();
+  var service = new google.maps.places.PlacesService(map);
   markers = [];
   //alert(locations.length);
   for (var i = 0; i < locations.length; i++) {
-    var place = locations[i];
+    var location = locations[i];
+
+    dInfo = location[0] + "<br>" + location[3];
     var marker = new google.maps.Marker({
-      position: {lat: place[1], lng: place[2]},
+      position: {lat: location[1], lng: location[2]},
       map: map,
       shape: shape,
-      title: place[0],
     });
+
+    (function(z) {
+      google.maps.event.addListener(marker, 'click', function() {
+      infowindow.setContent(z);
+      infowindow.open(map, this);
+    });
+    })(dInfo);
     markers.push(marker);
-    map.setCenter({lat: locations[0][1], lng: locations[0][2]});
   }
+  map.setCenter({lat: locations[0][1], lng: locations[0][2]});
 }
 
 function initAutocomplete() {

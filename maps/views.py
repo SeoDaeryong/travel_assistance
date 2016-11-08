@@ -62,7 +62,7 @@ def ajax_group(request):
     group_count, places = group_count_update(group_name)
     pls = get_template('maps/place_list.html')
     ctx = Context({ 'groups' : group_count, 'places': places })
-    data = [[p.place_name, p.lat, p.lng] for p in places]
+    data = [[p.place_name, p.lat, p.lng, p.place_id] for p in places]
     #return HttpResponse(pls.render(ctx), {'places': places})
     return HttpResponse(json.dumps({"html": pls.render(ctx), "places": data}))
 

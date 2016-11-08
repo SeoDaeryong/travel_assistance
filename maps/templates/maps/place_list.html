@@ -10,21 +10,30 @@
 
 {% for place in places %}
   <div id='places' class="col-md-12">
-    <div class="col-sm-6">
+    <div class="col-sm-1">
+      <div class="checkbox custom">
+        <input id="box{{place.id}}" class="css-checkbox" type="checkbox" name="gc" value="{{place.place_name}}"/>
+        <label for="box{{place.id}}" class="css-label-blue"></label>
+      </div>
+    </div>
+    <div class="col-sm-5">
         <h1 class="form-control text-center"><a href="{% url 'place_detail' pk=place.pk %}"> {{ place.place_name }} </a></h1>
     </div>
     <div class="col-sm-2">
       <h2 class="form-control text-center">{{ place.group_name }}</h>
     </div>
     <div class="col-sm-2">
-      <input name="capital"
-      {% if place.capital == True %}
-      checked="checked" onclick=""
-      {% else %}
-      onclick="place_ajax_capital_update('capital', {{place.id}}, 'on');"
-      {% endif %}
-      type="checkbox" style="text-align:center" />
-      그룹 중심
+      <div class="checkbox custom">
+        <input id="cap{{place.id}}" name="capital" class="css-checkbox"
+        {% if place.capital == True %}
+        checked="checked" onclick=""
+        {% else %}
+        onclick="place_ajax_capital_update('capital', {{place.id}}, 'on');"
+        {% endif %}
+        type="checkbox" />
+        <label for="cap{{place.id}}" class="css-label-purple"></label>
+        그룹 중심
+      </div>
     </div>
     <div class="col-sm-2">
       <input class="form-control btn btn-default" type="button" value="삭제" onclick="place_ajax_delete('delete', {{ place.pk }}, 'no');"/>
