@@ -12,11 +12,11 @@
         </div>
         <div class="col-xs-3">
           {% if place.capital == True %}
-          <input name="capital" type="checkbox" checked="checked" style="text-align:center"/>
+          <input id="capital" name="capital" type="checkbox" checked="checked" style="text-align:center"/>
           {% else %}
           <input name="capital" type="checkbox" style="text-align:center"/>
           {% endif %}
-          그룹 중심 여부
+          <label for="capital" class="css-label-purple">그룹 중심 여부</label>
         </div>
         <div class="col-xs-3">
           <button type="submit" style="text-align:center" class="save btn btn-default">Save</button>

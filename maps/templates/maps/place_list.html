@@ -1,12 +1,21 @@
-<div id='group' class="col-md-12">
+
 {% for group in groups %}
+  {% if group.2 == 1 %}
+    <div id='group' class="col-md-12">
+  {% endif %}
     {% if group.1 != 0 %}
     <div class="col-sm-2">
-      <h1 class="text-center" onclick='update_place_list_by_group("group", "{{group.0}}")'> {{ group.0 }} ( {{ group.1 }} )</h1>
+      <h1 class="text-center" onclick='update_place_list_by_group("group", "{{group.0}}")'> {{ group.0 }} ( {{ group.1 }} ) {{ group.2 }}</h1>
     </div>
     {% endif %}
+  {% if group.2 == 2 %}
+    </div>
+  {% endif %}
 {% endfor %}
-</div>
+{% if group.2 != 2 %}
+  </div>
+{% endif %}
+
 
 {% for place in places %}
   <div id='places' class="col-md-12">
