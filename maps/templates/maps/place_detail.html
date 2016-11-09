@@ -1,6 +1,7 @@
 {% extends 'maps/index.html' %}
 
 {% block content %}
+  {% for place in places %}
     <div class="place row">
         <form method="POST" class="post-form"> {% csrf_token %}
         <div class="col-xs-3">
@@ -26,6 +27,7 @@
         <input name="id" type="hidden" value="{{place.id}}" />
         </form>
     </div>
+    {% endfor %}
     <div class="row">
       {% for capital in capitals %}
       <div class="col-sm-12">
@@ -37,6 +39,9 @@
           </div>
           <div class="col-sm-4">
             <h2 class="form-control">{{ capital.time }}</h>
+          </div>
+          <div class="col-sm-4">
+            <h2 class="form-control" onclick="redirect_gmap_place('{{ capital.place_name }}', '{{ capital.latlng }}')">구글 맵 정보</h>
           </div>
           <!--<h1><a href="">{{ place.title }}</a></h1>-->
       </div>

@@ -110,7 +110,9 @@
       {% endblock %}
     </div>
     <div id="list" class="row">
-        {% include 'maps/place_list.html' %}
+        {% if mode != "detail" %}
+          {% include 'maps/place_list.html' %}
+        {% endif %}
     </div>
     <script>
     function place_ajax_capital_update(mode, pk, update) {
@@ -171,6 +173,12 @@
 
       window.open("https://www.google.co.kr/maps/dir/" + dest);
     }
+
+    function redirect_gmap_place(place_name, latlng) {
+      if(place_name == "" || latlng == "") return 1;
+      window.open("https://www.google.co.kr/maps/place/" + place_name + "/@" + latlng+ "/");
+    }
+
     </script>
     <script>
 // This example adds a search box to a map, using the Google Place Autocomplete
@@ -255,7 +263,11 @@ function set_marker(mode, map) {
 function initAutocomplete() {
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 41.9, lng: 12.4},
-    zoom: 10,
+    {% if mode == "detail" %}
+      zoom: 15,
+    {% else %}
+      zoom: 10,
+    {% endif %}
     mapTypeId: google.maps.MapTypeId.ROADMAP
   });
 

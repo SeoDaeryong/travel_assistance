@@ -165,8 +165,9 @@ def place_detail(request, pk):
             orig_coord = str(place.lat) + "," + str(place.lng)
             transit_time = calc_time_logic(orig_coord, dest_coord)
             print GetTime(transit_time)
-            capitals.append({"id": cplace.id, "group_name": cplace.group_name, "place_name": cplace.place_name, "time": GetTime(transit_time)})
-        return render(request, 'maps/place_detail.html', {'place': place, 'capitals': capitals})
+            latlng = str(cplace.lat) +"," + str(cplace.lng) + ",13z"
+            capitals.append({"id": cplace.id, "group_name": cplace.group_name, "place_name": cplace.place_name, "placeId": cplace.place_id, "latlng": latlng, "time": GetTime(transit_time)})
+        return render(request, 'maps/place_detail.html', {'places': [place], 'capitals': capitals, "mode": "detail"})
 
 def group_count_update(group_name=""):
     capital_places = Place.objects.filter(capital=True)
