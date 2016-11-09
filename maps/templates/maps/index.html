@@ -101,7 +101,7 @@
         <input type="button" class="btn btn-default" onclick="clearMarkers()" value="마커 OFF"></input>
       </div>
       <div class="col-sm-1">
-
+        <input type="button" class="btn btn-default" onclick="redirect_gmaps()" value="큰 지도 보기"></input>
       </div>
     </div>
     <br>
@@ -177,6 +177,10 @@
     function redirect_gmap_place(place_name, latlng) {
       if(place_name == "" || latlng == "") return 1;
       window.open("https://www.google.co.kr/maps/place/" + place_name + "/@" + latlng+ "/");
+    }
+
+    function redirect_gmaps() {
+      window.open("/gmaps");
     }
 
     </script>
