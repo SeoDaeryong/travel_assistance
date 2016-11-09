@@ -21,11 +21,8 @@ def index(request):
 
 def load_gmaps(request):
     places = Place.objects.all()
-    markers = []
-    for place in places:
-        markers.append({"name": place.place_name, "lat": place.lat, "lng": place.lng})
     #markers = [{"name":"123", "lat":41.2, "lng": 12.3}]
-    return render(request, 'maps/gmaps.html', {'markerTs': markers})
+    return render(request, 'maps/gmaps.html', {'places': places})
 
 @csrf_exempt
 def ajax_add(request):
