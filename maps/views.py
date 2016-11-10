@@ -45,7 +45,7 @@ def ajax_add(request):
                         break
                 new_place.save()
 
-    group_count, places = group_count_update()
+    group_count, places = group_count_update(new_place.group_name)
     pls = get_template('maps/place_list.html')
     ctx = Context({ 'i': 0, 'groups' : group_count, 'places': places })
     return HttpResponse(pls.render(ctx))
@@ -112,7 +112,7 @@ def ajax_delete(request):
         deletePlace.delete()
 
         #form.delete()
-    group_count, places = group_count_update()
+    group_count, places = group_count_update(deletePlace.group_name)
     pls = get_template('maps/place_list.html')
     ctx = Context({ 'groups' : group_count, 'places': places })
     return HttpResponse(pls.render(ctx))
@@ -131,7 +131,7 @@ def ajax_capital(request):
         Place.objects.filter(pk=pk).update(capital=update)
         #form.delete()
 
-    group_count, places = group_count_update()
+    group_count, places = group_count_update(get_object_or_404(Place, pk=pk).group_name)
     pls = get_template('maps/place_list.html')
     ctx = Context({ 'groups' : group_count, 'places': places })
     return HttpResponse(pls.render(ctx))
@@ -150,7 +150,7 @@ def place_detail(request, pk):
         Place.objects.filter(pk=id).update(info=info)
         #print form
             #form.save()
-        return redirect("index")
+        return all_place_list_return_by_group(request, group_name)
     else:
         capitals = []
         place = get_object_or_404(Place, pk=pk)
@@ -186,6 +186,11 @@ def group_count_update(group_name=""):
     else:
         places = Place.objects.filter(group_name=group_name).order_by('-capital')
     return group_count, places
+
+def all_place_list_return_by_group(request, group_name):
+    places = Place.objects.all()
+    group_count, places = group_count_update(group_name)
+    return render(request, 'maps/index.html', {'groups' : group_count, 'places': places})
 
 def all_place_list_return(request):
     places = Place.objects.all()
