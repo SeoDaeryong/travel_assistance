@@ -172,7 +172,7 @@ def place_detail(request, pk):
 
 def group_count_update(group_name=""):
     capital_places = Place.objects.filter(capital=True)
-    if capital_place == 0:
+    if capital_places == 0:
         return [], []
     group = {}
     for cplace in capital_places:
