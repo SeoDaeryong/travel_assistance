@@ -96,19 +96,20 @@ def ajax_delete(request):
         deletePlace = get_object_or_404(Place, pk=pk)
         if deletePlace.capital:
             group_places = Place.objects.filter(group_name=deletePlace.group_name)
-            min_time = 999999
-            for place in group_places:
-                if place.id == deletePlace.id:
-                    continue
-                dest_coord = str(place.lat) + "," + str(place.lng)
-                orig_coord = str(deletePlace.lat) + "," + str(deletePlace.lng)
-                transit_time = calc_time_logic(orig_coord, dest_coord)
-                print transit_time
-                if transit_time < min_time:
-                    candPlace = place
-                    min_time = transit_time
+            if group_places.count() > 1:
+                min_time = 999999
+                for place in group_places:
+                    if place.id == deletePlace.id:
+                        continue
+                    dest_coord = str(place.lat) + "," + str(place.lng)
+                    orig_coord = str(deletePlace.lat) + "," + str(deletePlace.lng)
+                    transit_time = calc_time_logic(orig_coord, dest_coord)
+                    #print transit_time
+                    if transit_time < min_time:
+                        candPlace = place
+                        min_time = transit_time
 
-            candPlace.update(capital=True)
+                candPlace.update(capital=True)
         deletePlace.delete()
 
         #form.delete()
