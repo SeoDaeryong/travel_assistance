@@ -172,6 +172,8 @@ def place_detail(request, pk):
 
 def group_count_update(group_name=""):
     capital_places = Place.objects.filter(capital=True)
+    if capital_place == 0:
+        return [], []
     group = {}
     for cplace in capital_places:
         group[cplace.group_name] = Place.objects.filter(group_name=cplace.group_name).count()
@@ -199,11 +201,11 @@ def group_count_update(group_name=""):
     return group_count, places
 
 def all_place_list_return_by_group(request, group_name):
-    places = Place.objects.all()
+    #places = Place.objects.all()
     group_count, places = group_count_update(group_name)
     return render(request, 'maps/index.html', {'groups' : group_count, 'places': places})
 
 def all_place_list_return(request):
-    places = Place.objects.all()
+    #places = Place.objects.all()
     group_count, places = group_count_update()
     return render(request, 'maps/index.html', {'groups' : group_count, 'places': places})
