@@ -174,6 +174,9 @@ def group_count_update(group_name=""):
         #group_count.append({"group_name": cplace.group_name, "group_count": Place.objects.filter(group_name=cplace.group_name).count()})
 
     group_count = sorted(group.items(), key=operator.itemgetter(1), reverse=True)
+    if group_name == "":
+        group_name = group_count[0][0]
+
     for i in range(0, len(group_count)):
         if i % 6 == 0:
             group_count[i] = [group_count[i][0], group_count[i][1], 1]
@@ -181,10 +184,13 @@ def group_count_update(group_name=""):
             group_count[i] = [group_count[i][0], group_count[i][1], 2]
         else:
             group_count[i] = [group_count[i][0], group_count[i][1], 0]
-    if group_name == "":
-        places = Place.objects.filter(group_name=group_count[0][0]).order_by('-capital')
-    else:
-        places = Place.objects.filter(group_name=group_name).order_by('-capital')
+
+        if group_count[i][0] == group_name:
+            group_count[i] += [1]
+        else:
+            group_count[i] += [0]
+
+    places = Place.objects.filter(group_name=group_name).order_by('-capital')
     return group_count, places
 
 def all_place_list_return_by_group(request, group_name):

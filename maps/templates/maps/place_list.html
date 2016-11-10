@@ -4,8 +4,13 @@
     <div id='group' class="col-md-12">
   {% endif %}
     {% if group.1 != 0 %}
-    <div class="col-sm-2">
-      <h1 class="text-center" onclick='update_place_list_by_group("group", "{{group.0}}")'> {{ group.0 }} ( {{ group.1 }} )</h1>
+    <div class="col-sm-2
+    {% if group.3 == 1 %}
+      active">
+    {% else %}
+      ">
+    {% endif %}
+      <h2 class="text-center" onclick='update_place_list_by_group("group", "{{group.0}}")'> {{ group.0 }} ( {{ group.1 }} )</h2>
     </div>
     {% endif %}
   {% if group.2 == 2 %}
