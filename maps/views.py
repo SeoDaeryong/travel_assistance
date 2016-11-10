@@ -59,7 +59,7 @@ def ajax_group(request):
     group_count, places = group_count_update(group_name)
     pls = get_template('maps/place_list.html')
     ctx = Context({ 'groups' : group_count, 'places': places })
-    data = [[p.place_name, p.lat, p.lng, p.place_id] for p in places]
+    data = [[p.place_name, p.lat, p.lng, "<br />".join(p.info.split("\r\n"))] for p in places]
     #return HttpResponse(pls.render(ctx), {'places': places})
     return HttpResponse(json.dumps({"html": pls.render(ctx), "places": data}))
 
@@ -142,7 +142,9 @@ def place_detail(request, pk):
         group_name = request.POST.get("group_name", "")
         capital = request.POST.get("capital", "")
         info = request.POST.get("info", "")
-        print 'Raw Delete Data: "%s"' % capital
+        print 'Raw Delete Data: "%s"' % info
+        #info = "<br />".join(info.split("\r\n"))
+        #print 'Raw Delete Data: "%s"' % info
         capital = capital_update_check(capital)
         #print 'Raw Delete Data: "%s"' % pk.pk
         Place.objects.filter(pk=id).update(group_name=group_name)
@@ -150,10 +152,11 @@ def place_detail(request, pk):
         Place.objects.filter(pk=id).update(info=info)
         #print form
             #form.save()
-        return all_place_list_return_by_group(request, group_name)
+        return redirect("index")
     else:
         capitals = []
         place = get_object_or_404(Place, pk=pk)
+        #place.info = "\r\n".join(place.info.split("<br />"))
         capital_places = Place.objects.filter(capital=True)
         for cplace in capital_places:
             if cplace.id == place.id:
@@ -161,7 +164,7 @@ def place_detail(request, pk):
             dest_coord = str(cplace.lat) + "," + str(cplace.lng)
             orig_coord = str(place.lat) + "," + str(place.lng)
             transit_time = calc_time_logic(orig_coord, dest_coord)
-            print GetTime(transit_time)
+            #print GetTime(transit_time)
             latlng = str(cplace.lat) +"," + str(cplace.lng) + ",13z"
             capitals.append({"id": cplace.id, "group_name": cplace.group_name, "place_name": cplace.place_name, "placeId": cplace.place_id, "latlng": latlng, "time": GetTime(transit_time)})
         return render(request, 'maps/place_detail.html', {'places': [place], 'capitals': capitals, "mode": "detail"})
@@ -174,6 +177,7 @@ def group_count_update(group_name=""):
         #group_count.append({"group_name": cplace.group_name, "group_count": Place.objects.filter(group_name=cplace.group_name).count()})
 
     group_count = sorted(group.items(), key=operator.itemgetter(1), reverse=True)
+
     if group_name == "":
         group_name = group_count[0][0]
 

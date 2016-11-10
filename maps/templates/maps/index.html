@@ -230,7 +230,7 @@ var map;
 var markers = [];
 var locations = [];
 {% for place in places %}
-locations.push(["{{place.place_name}}", {{place.lat}}, {{place.lng}}, "{{place.info}}"])
+locations.push(["{{place.place_name}}", {{place.lat}}, {{place.lng}}, "{{place.info|linebreaksbr}}"])
 {% endfor %}
 
 function set_marker(mode, map) {
